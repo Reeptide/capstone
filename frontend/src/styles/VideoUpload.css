@@ -1,0 +1,187 @@
+.upload-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.upload-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.upload-box {
+  width: 200px;
+  height: 200px;
+  border: 2px dashed #3498db;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background-color 0.3s;
+}
+
+.upload-box:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+.upload-icon {
+  font-size: 60px;
+  color: #3498db;
+}
+
+.upload-text {
+  margin-top: 10px;
+  font-size: 24px;
+  color: #3498db;
+}
+
+.upload-info {
+  font-size: 20px;
+  color: #aaa;
+}
+
+.uploaded-file {
+  width: 80%;
+  background-color: #222;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-label {
+  font-size: 22px;
+  color: #aaa;
+  margin-right: 10px;
+}
+
+.file-name {
+  font-size: 22px;
+  color: white;
+}
+
+.generate-buttons {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.button-row {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+
+.button-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.generate-button {
+  width: 100%;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 18px 30px;
+  font-size: 22px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.generate-button:hover:not(:disabled) {
+  background-color: #2980b9;
+}
+
+.generate-button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+.completion-message {
+  color: #2ecc71;
+  font-size: 16px;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Process flow visualization */
+.process-flow {
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.process-step {
+  background-color: #222;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-size: 16px;
+  color: #aaa;
+}
+
+.process-step.completed {
+  background-color: #2980b9;
+  color: white;
+}
+
+.process-arrow {
+  color: #555;
+  font-size: 20px;
+}
+
+/* Button spinner */
+.button-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+  .button-row {
+    flex-direction: column;
+  }
+  
+  .generate-button {
+    font-size: 18px;
+    padding: 15px 20px;
+  }
+  
+  .process-flow {
+    flex-direction: column;
+  }
+  
+  .process-arrow {
+    transform: rotate(90deg);
+  }
+}
