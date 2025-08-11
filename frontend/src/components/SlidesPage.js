@@ -1,107 +1,224 @@
 import React, { useState } from 'react';
-import SlideViewer from './SlideViewer';
 import '../styles/SlidesPage.css';
 
 const SlidesPage = ({ slides, topics, onGoBack }) => {
-  const [selectedTopic, setSelectedTopic] = useState(slides[0]?.title || '');
-  const [viewingSlide, setViewingSlide] = useState(null);
-
-  const handleTopicClick = (topic) => {
-    setSelectedTopic(topic);
+  const [currentTopicId, setCurrentTopicId] = useState(null);
+  const [slideViewerOpen, setSlideViewerOpen] = useState(false);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  
+  // Find current topic slides
+  const currentTopic = slides.find(slide => slide.topicId === currentTopicId);
+  const currentTopicSlides = currentTopic?.slides || [];
+  const currentSlide = currentTopicSlides[currentSlideIndex] || null;
+  
+  // Handle topic selection from the left sidebar
+  const handleTopicSelect = (topicId) => {
+    setCurrentTopicId(topicId);
+    setCurrentSlideIndex(0); // Reset to first slide when changing topics
   };
-
-  const handleSlideClick = (slide) => {
-    setViewingSlide(slide);
+  
+  // Handle opening slides when clicking on a slide icon
+  const handleSlideIconClick = (topicId) => {
+    setCurrentTopicId(topicId);
+    setCurrentSlideIndex(0);
+    setSlideViewerOpen(true);
   };
-
-  const closeViewer = () => {
-    setViewingSlide(null);
+  
+  // Handle next slide
+  const handleNextSlide = () => {
+    if (currentSlideIndex < currentTopicSlides.length - 1) {
+      setCurrentSlideIndex(currentSlideIndex + 1);
+    }
   };
-
-  // Get the slides for the selected topic
-  const selectedSlideGroup = slides.find(group => group.title === selectedTopic);
-  const currentSlides = selectedSlideGroup?.slides || [];
-
+  
+  // Handle previous slide
+  const handlePrevSlide = () => {
+    if (currentSlideIndex > 0) {
+      setCurrentSlideIndex(currentSlideIndex - 1);
+    }
+  };
+  
+  // Download slides as PPT
+  const handleDownloadSlides = () => {
+    if (!currentTopic) return;
+    
+    // Map topic IDs to PDF/PPT file names
+    const pptMap = {
+      1: 'morphological_processing.pptx',
+      2: 'homogeneity_criteria.pptx',
+      3: 'edge_detection_fundamentals.pptx',
+      4: 'edges_lines_points.pptx',
+      5: 'edge_detection_differencing.pptx'
+    };
+    
+    const pptName = pptMap[currentTopic.topicId] || 'slides.pptx';
+    
+    const link = document.createElement('a');
+    link.href = `/${pptName}`;
+    link.download = pptName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
+  // Close the slide viewer
+  const closeSlideViewer = () => {
+    setSlideViewerOpen(false);
+  };
+  
   return (
-    <div className="slides-container">
-      <h1 className="page-title">Lecture Slides</h1>
-      
-      <div className="topics-slides-container">
-        {/* Vertical slides list on the left */}
-        <div className="slides-list-sidebar">
-          <h2>Slides</h2>
-          <div className="slides-list">
-            {slides.map((slideGroup) => (
-              <div key={slideGroup.topicId} className="slide-group">
-                <div className="slide-group-title">{slideGroup.title}</div>
-                {slideGroup.slides.map((slide, slideIndex) => (
-                  <div 
-                    key={slideIndex} 
-                    className={`slide-list-item ${selectedTopic === slideGroup.title ? 'active' : ''}`}
-                    onClick={() => {
-                      handleTopicClick(slideGroup.title);
-                      handleSlideClick(slide);
-                    }}
-                  >
-                    <div className="slide-icon">
-                      <img src="/slide-icon.png" alt="Slide" onError={(e) => e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233498db'%3E%3Cpath d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM13.5 10h-7v1h7v-1zm0 2h-7v1h7v-1zm0 2h-7v1h7v-1zm8-6V5h-2v3h-3v2h3v3h2v-3h3V8h-3z'/%3E%3C/svg%3E"} />
-                    </div>
-                    <div className="slide-count">{slideGroup.slides.length}</div>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
+    <div className="slides-page">
+      <div className="page-container">
+        <div className="column-headers">
+          <div className="lecture-topics-header">Lecture Topics</div>
+          <div className="slides-column-header">Slides</div>
+          <div className="preview-column-header">Preview</div>
         </div>
         
-        {/* Main content area with topics at top and selected slide below */}
-        <div className="main-content-area">
-          <div className="topics-row">
-            <h2>Topics</h2>
-            <div className="topics-buttons">
-              {slides.map((slideGroup, index) => (
-                <button 
-                  key={index} 
-                  className={`topic-button ${selectedTopic === slideGroup.title ? 'active' : ''}`}
-                  onClick={() => handleTopicClick(slideGroup.title)}
+        <div className="slides-content-container">
+          <div className="slides-table">
+            {topics.map((topic) => {
+              // Find matching slides for this topic
+              const topicSlides = slides.find(slide => slide.topicId === topic.id);
+              const slideCount = topicSlides?.slides?.length || 0;
+              
+              return (
+                <div 
+                  key={topic.id} 
+                  className={`table-row ${currentTopicId === topic.id ? 'active-row' : ''}`}
                 >
-                  {slideGroup.title}
-                </button>
-              ))}
-            </div>
+                  <div 
+                    className={`topic-cell ${currentTopicId === topic.id ? 'active' : ''}`}
+                    onClick={() => handleTopicSelect(topic.id)}
+                  >
+                    <div className="topic-title">{topic.title}</div>
+                  </div>
+                  
+                  <div 
+                    className={`slide-cell ${currentTopicId === topic.id ? 'active' : ''}`}
+                    onClick={() => handleSlideIconClick(topic.id)}
+                  >
+                    <div className="slide-icon-wrapper">
+                      <div className="slide-icon">
+                        <span>PPT</span>
+                      </div>
+                      <span className="slide-count">{slideCount}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
           
-          <div className="selected-slide-display">
-            {currentSlides.length > 0 ? (
-              <div className="slide-display-area">
-                <img 
-                  src={currentSlides[0].imageUrl || "https://via.placeholder.com/800x450?text=" + encodeURIComponent(currentSlides[0].content)}
-                  alt={currentSlides[0].content} 
-                  onClick={() => handleSlideClick(currentSlides[0])}
-                />
-                <div className="slide-title">{currentSlides[0].content}</div>
+          <div className="preview-panel">
+            {currentTopic ? (
+              <div className="preview-content">
+                <div className="preview-header">
+                  <h2>{currentTopic.title}</h2>
+                  <div className="preview-controls">
+                    <button 
+                      className="preview-nav-button" 
+                      onClick={handlePrevSlide}
+                      disabled={currentSlideIndex === 0}
+                    >
+                      ◀
+                    </button>
+                    <div className="preview-counter">
+                      {currentSlideIndex + 1} / {currentTopicSlides.length}
+                    </div>
+                    <button 
+                      className="preview-nav-button" 
+                      onClick={handleNextSlide}
+                      disabled={currentSlideIndex === currentTopicSlides.length - 1}
+                    >
+                      ▶
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="preview-slide">
+                  {currentSlide ? (
+                    <>
+                      <h1>{currentSlide.content}</h1>
+                      {currentSlide.imageUrl && (
+                        <img src={currentSlide.imageUrl} alt="Slide content" />
+                      )}
+                    </>
+                  ) : (
+                    <div className="empty-preview">No slide content available</div>
+                  )}
+                </div>
+                
+                <div className="preview-actions">
+                  <button className="download-button" onClick={handleDownloadSlides}>
+                    Download Presentation
+                  </button>
+                </div>
               </div>
             ) : (
-              <div className="no-slides-message">
-                No slides available for this topic
+              <div className="empty-preview-message">
+                Select a topic to view slides
               </div>
             )}
           </div>
         </div>
+        
+        <div className="footer-container">
+          <button className="back-button" onClick={onGoBack}>
+            Back to Video Upload
+          </button>
+        </div>
       </div>
       
-      <div className="navigation-controls">
-        <button className="back-button blue-button" onClick={onGoBack}>
-          Back to Video Upload
-        </button>
-      </div>
-      
-      {viewingSlide && (
-        <SlideViewer
-          slide={viewingSlide}
-          onClose={closeViewer}
-          title={selectedTopic}
-        />
+      {/* Full Screen Slide Viewer Modal */}
+      {slideViewerOpen && currentTopic && (
+        <div className="slide-viewer-overlay">
+          <div className="slide-viewer">
+            <div className="slide-viewer-header">
+              <h2>{currentTopic.title}</h2>
+              <button className="close-button" onClick={closeSlideViewer}>×</button>
+            </div>
+            
+            <div className="slide-content">
+              {currentSlide ? (
+                <div className="slide">
+                  <h1>{currentSlide.content}</h1>
+                  {currentSlide.imageUrl && (
+                    <img src={currentSlide.imageUrl} alt="Slide content" />
+                  )}
+                </div>
+              ) : (
+                <div className="empty-slide">No slide content available</div>
+              )}
+            </div>
+            
+            <div className="slide-navigation">
+              <button 
+                className="nav-button prev-button" 
+                onClick={handlePrevSlide}
+                disabled={currentSlideIndex === 0}
+              >
+                Previous
+              </button>
+              <div className="slide-counter">
+                {currentSlideIndex + 1} / {currentTopicSlides.length}
+              </div>
+              <button 
+                className="nav-button next-button" 
+                onClick={handleNextSlide}
+                disabled={currentSlideIndex === currentTopicSlides.length - 1}
+              >
+                Next
+              </button>
+            </div>
+            
+            <div className="slide-actions">
+              <button className="download-button" onClick={handleDownloadSlides}>
+                Download Presentation
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

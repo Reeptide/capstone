@@ -1,171 +1,147 @@
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import '../styles/VideoUpload.css';
 
 const VideoUpload = ({ 
   onFileUpload, 
-  videoFile, 
-  onGenerateTranscript, 
-  onGenerateTopics, 
+  onGenerateTranscript,
+  onGenerateTopics,
   onGenerateNotes,
   onGenerateSlides,
+  videoFile,
   isProcessing,
   completedSteps
 }) => {
-  const fileInputRef = useRef(null);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type.startsWith('video/')) {
-      onFileUpload(file);
-    }
-  };
-
-  const handleDragOver = (e) => {
+  const [dragActive, setDragActive] = useState(false);
+  
+  const handleDrag = (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
   };
   
   const handleDrop = (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      if (file && file.type.startsWith('video/')) {
-        onFileUpload(file);
-      }
+      onFileUpload(e.dataTransfer.files[0]);
     }
   };
-
+  
+  const handleChange = (e) => {
+    e.preventDefault();
+    if (e.target.files && e.target.files[0]) {
+      onFileUpload(e.target.files[0]);
+    }
+  };
+  
   return (
     <div className="upload-container">
-      <div className="upload-area">
-        <div 
-          className="upload-box"
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-          onClick={() => fileInputRef.current.click()}
-        >
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            style={{ display: 'none' }} 
-            accept="video/*"
-            onChange={handleFileChange}
-          />
-          <div className="upload-icon">+</div>
-          <div className="upload-text">{videoFile ? 'Change Video' : 'Upload Video'}</div>
+      <h2 className="upload-title">Upload Your Lecture Video</h2>
+      
+      <div 
+        className={`upload-area ${dragActive ? 'drag-active' : ''} ${videoFile ? 'has-file' : ''}`}
+        onDragEnter={handleDrag}
+        onDragLeave={handleDrag}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+      >
+        <div className="upload-content">
+          {!videoFile ? (
+            <>
+              <div className="upload-icon">+</div>
+              <p className="upload-text">Change Video</p>
+              <input 
+                type="file" 
+                id="video-upload" 
+                accept="video/mp4,video/webm,video/ogg" 
+                className="file-input"
+                onChange={handleChange}
+              />
+              <p className="upload-hint">Upload your lecture video (MP4 format)</p>
+            </>
+          ) : (
+            <>
+              <div className="upload-icon check">✓</div>
+              <p className="upload-text">Uploaded: {videoFile.name}</p>
+              <label htmlFor="video-upload" className="change-file-btn">
+                Change Video
+                <input 
+                  type="file" 
+                  id="video-upload" 
+                  accept="video/mp4,video/webm,video/ogg" 
+                  className="file-input"
+                  onChange={handleChange}
+                />
+              </label>
+            </>
+          )}
         </div>
-        <div className="upload-info">Upload your lecture video (MP4 format)</div>
       </div>
       
       {videoFile && (
-        <div className="uploaded-file">
-          <div className="file-label">Uploaded:</div>
-          <div className="file-name">{videoFile.name}</div>
+        <div className="processing-container">
+          <div className="processing-steps">
+            <button 
+              className={`process-button ${isProcessing.transcript ? 'processing' : ''} ${completedSteps.transcript ? 'completed' : ''}`}
+              onClick={onGenerateTranscript}
+              disabled={isProcessing.transcript}
+            >
+              {isProcessing.transcript ? 'Generating...' : 'Generate Transcript'}
+              {completedSteps.transcript && <span className="check-icon">✓</span>}
+            </button>
+            
+            <button 
+              className={`process-button ${isProcessing.topics ? 'processing' : ''} ${completedSteps.topics ? 'completed' : ''}`}
+              onClick={onGenerateTopics}
+              disabled={isProcessing.topics || !completedSteps.transcript}
+            >
+              {isProcessing.topics ? 'Generating...' : 'Generate Topics'}
+              {completedSteps.topics && <span className="check-icon">✓</span>}
+            </button>
+            
+            <button 
+              className={`process-button ${isProcessing.notes ? 'processing' : ''} ${completedSteps.notes ? 'completed' : ''}`}
+              onClick={onGenerateNotes}
+              disabled={isProcessing.notes || !completedSteps.topics}
+            >
+              {isProcessing.notes ? 'Generating...' : 'Generate Notes'}
+              {completedSteps.notes && <span className="check-icon">✓</span>}
+            </button>
+            
+            <button 
+              className={`process-button ${isProcessing.slides ? 'processing' : ''} ${completedSteps.slides ? 'completed' : ''}`}
+              onClick={onGenerateSlides}
+              disabled={isProcessing.slides || !completedSteps.notes}
+            >
+              {isProcessing.slides ? 'Generating...' : 'Generate Slides'}
+              {completedSteps.slides && <span className="check-icon">✓</span>}
+            </button>
+          </div>
+          
+          <div className="workflow-steps">
+            <div className={`workflow-step ${completedSteps.transcript ? 'active' : ''}`}>
+              1. Generate Transcript
+            </div>
+            <div className="workflow-arrow">→</div>
+            <div className={`workflow-step ${completedSteps.topics ? 'active' : ''}`}>
+              2. Generate Topics
+            </div>
+            <div className="workflow-arrow">→</div>
+            <div className={`workflow-step ${completedSteps.notes ? 'active' : ''}`}>
+              3. Generate Notes
+            </div>
+            <div className="workflow-arrow">→</div>
+            <div className={`workflow-step ${completedSteps.slides ? 'active' : ''}`}>
+              4. Generate Slides
+            </div>
+          </div>
         </div>
       )}
-      
-      <div className="generate-buttons">
-        <div className="button-row">
-          <div className="button-container">
-            <button 
-              className="generate-button"
-              onClick={onGenerateTranscript}
-              disabled={isProcessing.transcript || !videoFile}
-            >
-              {isProcessing.transcript ? (
-                <>
-                  <span className="button-spinner"></span>
-                  Generating...
-                </>
-              ) : (
-                'Generate Transcript'
-              )}
-            </button>
-            {completedSteps.transcript && !isProcessing.transcript && (
-              <div className="completion-message">✓ Transcript generated!</div>
-            )}
-          </div>
-          
-          <div className="button-container">
-            <button 
-              className="generate-button"
-              onClick={onGenerateTopics}
-              disabled={isProcessing.topics || !videoFile || !completedSteps.transcript}
-            >
-              {isProcessing.topics ? (
-                <>
-                  <span className="button-spinner"></span>
-                  Generating...
-                </>
-              ) : (
-                'Generate Topics'
-              )}
-            </button>
-            {completedSteps.topics && !isProcessing.topics && (
-              <div className="completion-message">✓ Topics generated!</div>
-            )}
-          </div>
-        </div>
-        
-        <div className="button-row">
-          <div className="button-container">
-            <button 
-              className="generate-button"
-              onClick={onGenerateNotes}
-              disabled={isProcessing.notes || !videoFile || !completedSteps.topics}
-            >
-              {isProcessing.notes ? (
-                <>
-                  <span className="button-spinner"></span>
-                  Generating...
-                </>
-              ) : (
-                'Generate Notes'
-              )}
-            </button>
-            {completedSteps.notes && !isProcessing.notes && (
-              <div className="completion-message">✓ Notes generated!</div>
-            )}
-          </div>
-          
-          <div className="button-container">
-            <button 
-              className="generate-button"
-              onClick={onGenerateSlides}
-              disabled={isProcessing.slides || !videoFile || !completedSteps.notes}
-            >
-              {isProcessing.slides ? (
-                <>
-                  <span className="button-spinner"></span>
-                  Generating...
-                </>
-              ) : (
-                'Generate Slides'
-              )}
-            </button>
-            {completedSteps.slides && !isProcessing.slides && (
-              <div className="completion-message">✓ Slides generated!</div>
-            )}
-          </div>
-        </div>
-      </div>
-      
-      <div className="process-flow">
-        <div className={`process-step ${completedSteps.transcript ? 'completed' : ''}`}>
-          1. Generate Transcript
-        </div>
-        <div className="process-arrow">→</div>
-        <div className={`process-step ${completedSteps.topics ? 'completed' : ''}`}>
-          2. Generate Topics
-        </div>
-        <div className="process-arrow">→</div>
-        <div className={`process-step ${completedSteps.notes ? 'completed' : ''}`}>
-          3. Generate Notes
-        </div>
-        <div className="process-arrow">→</div>
-        <div className={`process-step ${completedSteps.slides ? 'completed' : ''}`}>
-          4. Generate Slides
-        </div>
-      </div>
     </div>
   );
 };
