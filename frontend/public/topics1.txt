@@ -1,0 +1,5 @@
+Fundamentals
+Point,Line, and Edge Detection
+Thresholding
+Segmentation by Region Growing and by Region Splitting
+Merging
