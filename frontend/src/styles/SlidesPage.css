@@ -16,7 +16,7 @@
   background-color: var(--background-dark);
   color: var(--text-color);
   min-height: 100vh;
-  width: 50%;
+  width: 100%; /* Changed from 50% to 100% to use full width */
   display: flex;
   flex-direction: column;
 }
@@ -44,16 +44,14 @@
 }
 
 .lecture-topics-header {
-  flex: 1;
-  width: 450px;
+  width: 500px; /* Increased from 450px to 500px */
   border-right: 1px solid var(--border-color);
 }
 
 .slides-column-header {
-   width: 150px;
+  width: 180px; /* Increased from 150px to 180px */
   border-right: 1px solid var(--border-color);
-  text-align: left; 
-  padding-left: 20px;
+  text-align: center; /* Changed back to center */
 }
 
 .preview-column-header {
@@ -67,11 +65,11 @@
   overflow: hidden;
 }
 
-/* Table layout - now with two columns */
+/* Table layout with fixed column widths */
 .slides-table {
   display: flex;
   flex-direction: column;
-  width: calc(100% - 450px);
+  width: 680px; /* Fixed width = 500px (topics) + 180px (slides) */
   overflow-y: auto;
 }
 
@@ -85,7 +83,7 @@
 }
 
 .topic-cell {
-  flex: 1;
+  width: 500px; /* Increased from 450px to 500px */
   padding: 20px;
   border-right: 1px solid var(--border-color);
   background-color: var(--background-dark);
@@ -93,7 +91,6 @@
   transition: background-color 0.2s;
   display: flex;
   align-items: center;
-  width: 450px;
 }
 
 .topic-cell:hover {
@@ -111,7 +108,16 @@
   line-height: 1.4;
 }
 
-
+/* Slides column - center aligned */
+.slide-cell {
+  width: 180px; /* Increased from 150px to 180px */
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center aligned */
+  cursor: pointer;
+  transition: background-color 0.2s;
+  padding: 15px 0;
+}
 
 .slide-cell:hover {
   background-color: var(--background-light);
@@ -132,7 +138,6 @@
 .slide-icon {
   width: 40px;
   height: 40px;
-  
   background-color: var(--icon-blue);
   border-radius: 6px;
   display: flex;
@@ -145,7 +150,10 @@
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-
+.slide-cell:hover .slide-icon {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
 
 .slide-count {
   color: var(--text-color);
@@ -153,9 +161,10 @@
   font-weight: 500;
 }
 
-/* Preview panel - takes the remaining space */
+/* Preview panel - takes all remaining space */
 .preview-panel {
-  width: 450px;
+  flex: 1; /* Changed from fixed width to flex: 1 */
+  min-width: 450px; /* Minimum width */
   background-color: var(--background-medium);
   border-left: 1px solid var(--border-color);
   display: flex;
@@ -468,6 +477,20 @@
 }
 
 /* Responsive design */
+@media (max-width: 1200px) {
+  .slides-table {
+    width: 580px; /* Slightly smaller on medium screens */
+  }
+  
+  .topic-cell {
+    width: 400px;
+  }
+  
+  .lecture-topics-header {
+    width: 400px;
+  }
+}
+
 @media (max-width: 1024px) {
   .slides-content-container {
     flex-direction: column;
@@ -484,33 +507,40 @@
     border-top: 1px solid var(--border-color);
     max-height: 50vh;
   }
+  
+  .topic-cell,
+  .lecture-topics-header {
+    width: auto;
+    flex: 1;
+  }
+  
+  .slide-cell,
+  .slides-column-header {
+    width: 150px;
+  }
 }
 
 @media (max-width: 768px) {
   .table-row {
-    flex-direction: column
-    
+    flex-direction: column;
   }
   
   .topic-cell {
     border-right: none;
     border-bottom: 1px solid var(--border-color);
+    width: 100%;
   }
   
+  .slide-cell {
+    width: 100%;
+    justify-content: center;
+    padding: 15px 0;
+  }
   
-.slide-cell {
-  width: 150px;
-  display: flex;
-  align-items: center;
-  justify-content: center; /* Change from 'center' to 'flex-start' */
-  cursor: pointer;
-  transition: background-color 0.2s;
-  padding: 15px 0 15px 20px; /* Add left padding to provide space from the border */
-}
-  
-  
-  .column-headers .slides-column-header {
-    width: 100px;
+  .slides-column-header,
+  .lecture-topics-header {
+    width: auto;
+    flex: 1;
   }
   
   .preview-slide h1 {

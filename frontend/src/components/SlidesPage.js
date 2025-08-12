@@ -44,7 +44,7 @@ const SlidesPage = ({ slides, topics, onGoBack }) => {
     
     // Map topic IDs to PDF/PPT file names
     const pptMap = {
-      1: 'morphological_processing.pptx',
+      1: 'Image_Segmentation_Final_With_Diagram.pptx',
       2: 'homogeneity_criteria.pptx',
       3: 'edge_detection_fundamentals.pptx',
       4: 'edges_lines_points.pptx',
