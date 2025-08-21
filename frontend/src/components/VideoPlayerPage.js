@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import '../styles/VideoPlayerPage.css';
 
@@ -9,7 +8,7 @@ const VideoPlayerPage = ({ videoUrl, topics, onGoBack, onGenerateSlides }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const videoTitle = "Lecture Video with Topics";
-  
+
   // Format timestamp from seconds to MM:SS format
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -28,10 +27,10 @@ const VideoPlayerPage = ({ videoUrl, topics, onGoBack, onGenerateSlides }) => {
   const jumpToTopic = (topic) => {
     if (videoRef.current && topic.timestamp) {
       const timeInSeconds = timestampToSeconds(topic.timestamp);
-      
+
       videoRef.current.currentTime = timeInSeconds;
       setCurrentTopic(topic);
-      
+
       // Play video if it's paused
       if (videoRef.current.paused) {
         videoRef.current.play().catch(e => {
@@ -46,13 +45,13 @@ const VideoPlayerPage = ({ videoUrl, topics, onGoBack, onGenerateSlides }) => {
     if (videoRef.current) {
       const currentTimeInSeconds = videoRef.current.currentTime;
       setCurrentTime(currentTimeInSeconds);
-      
+
       // Update progress bar
       if (progressBarRef.current && videoRef.current.duration) {
         const progress = (currentTimeInSeconds / videoRef.current.duration) * 100;
         progressBarRef.current.style.width = `${progress}%`;
       }
-      
+
       // Find current topic based on timestamp
       if (topics && topics.length) {
         // Convert topics timestamps to seconds for comparison
@@ -65,11 +64,11 @@ const VideoPlayerPage = ({ videoUrl, topics, onGoBack, onGenerateSlides }) => {
             endSeconds
           };
         });
-        
+
         // Find the current topic based on video current time
         let found = false;
         for (let i = 0; i < topicsWithSeconds.length; i++) {
-          if (currentTimeInSeconds >= topicsWithSeconds[i].startSeconds && 
+          if (currentTimeInSeconds >= topicsWithSeconds[i].startSeconds &&
               (i === topicsWithSeconds.length - 1 || currentTimeInSeconds < topicsWithSeconds[i+1].startSeconds)) {
             if (currentTopic?.id !== topicsWithSeconds[i].id) {
               setCurrentTopic(topicsWithSeconds[i]);
@@ -78,7 +77,7 @@ const VideoPlayerPage = ({ videoUrl, topics, onGoBack, onGenerateSlides }) => {
             break;
           }
         }
-        
+
         if (!found && currentTopic !== null) {
           setCurrentTopic(null);
         }
@@ -90,7 +89,7 @@ const VideoPlayerPage = ({ videoUrl, topics, onGoBack, onGenerateSlides }) => {
   const handleMetadataLoaded = () => {
     if (videoRef.current) {
       setDuration(videoRef.current.duration);
-      
+
       // Create topic markers once we know the video duration
       const topicMarkersContainer = document.querySelector('.topic-markers');
       if (topicMarkersContainer) {
@@ -98,7 +97,7 @@ const VideoPlayerPage = ({ videoUrl, topics, onGoBack, onGenerateSlides }) => {
         topics.forEach((topic) => {
           const timeInSeconds = timestampToSeconds(topic.timestamp);
           const position = (timeInSeconds / videoRef.current.duration) * 100;
-          
+
           const marker = document.createElement('div');
           marker.className = 'topic-marker';
           marker.style.left = `${position}%`;
@@ -124,7 +123,7 @@ const VideoPlayerPage = ({ videoUrl, topics, onGoBack, onGenerateSlides }) => {
     const handleKeyDown = (e) => {
       // Only handle if not in an input field
       if (e.target.tagName.toLowerCase() === 'input') return;
-      
+
       if (videoRef.current) {
         switch(e.key) {
           case ' ': // Space bar
@@ -170,7 +169,7 @@ const VideoPlayerPage = ({ videoUrl, topics, onGoBack, onGenerateSlides }) => {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    
+
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
@@ -185,7 +184,7 @@ const VideoPlayerPage = ({ videoUrl, topics, onGoBack, onGenerateSlides }) => {
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
-    
+
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   };
 
@@ -196,8 +195,8 @@ const VideoPlayerPage = ({ videoUrl, topics, onGoBack, onGenerateSlides }) => {
           <h2 className="sidebar-title">📚 Topics Timeline</h2>
           <ul className="topics-list">
             {topics && topics.map((topic) => (
-              <li 
-                key={topic.id} 
+              <li
+                key={topic.id}
                 className={`topic-item ${currentTopic?.id === topic.id ? 'active' : ''}`}
                 onClick={() => jumpToTopic(topic)}
               >
@@ -215,7 +214,7 @@ const VideoPlayerPage = ({ videoUrl, topics, onGoBack, onGenerateSlides }) => {
               </li>
             ))}
           </ul>
-          
+
           <div className="controls-info">
             <h3>⌨️ Keyboard Shortcuts</h3>
             <div>Space: Play/Pause</div>
@@ -226,18 +225,26 @@ const VideoPlayerPage = ({ videoUrl, topics, onGoBack, onGenerateSlides }) => {
 
         <div className="main-video-section">
           <div className="video-container">
+            {/* Make the video smaller so the title and current topic are visible together */}
             <div className="timestamp-display">{getCurrentDate()}</div>
-            <video 
+            <video
               ref={videoRef}
-              controls 
+              controls
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={handleMetadataLoaded}
               preload="metadata"
+              style={{
+                width: '70%',      // reduce video width
+                height: '340px',   // reduce video height for compact layout
+                maxWidth: '640px', // limit max width
+                display: 'block',
+                margin: '0 auto'
+              }}
             >
               <source src="/output_cleaned_vad.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
-            
+
             <div className="video-controls">
               <div className="progress-container">
                 <div className="progress-bar-container">
@@ -252,8 +259,13 @@ const VideoPlayerPage = ({ videoUrl, topics, onGoBack, onGenerateSlides }) => {
               </div>
             </div>
           </div>
-          
-          <div className="video-info">
+
+          {/* Video info and current topic always visible above the fold */}
+          <div className="video-info" style={{
+            marginTop: '10px',
+            marginBottom: '0',
+            padding: '10px 0 0 0'
+          }}>
             <div className="video-title-container">
               <h1 className="video-title">{videoTitle}</h1>
               <div className="video-meta">
@@ -261,7 +273,7 @@ const VideoPlayerPage = ({ videoUrl, topics, onGoBack, onGenerateSlides }) => {
                 <span>⏱️ Duration: {formatTime(duration)}</span>
               </div>
             </div>
-            
+
             <div className="current-topic-display">
               {currentTopic ? (
                 <>
@@ -274,7 +286,7 @@ const VideoPlayerPage = ({ videoUrl, topics, onGoBack, onGenerateSlides }) => {
               )}
             </div>
           </div>
-          
+
           <div className="action-buttons">
             <button className="back-button" onClick={onGoBack}>
               Back to Video Upload
