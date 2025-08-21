@@ -25,7 +25,6 @@ const SlidesPage = ({ slides, onGoBack }) => {
         console.error("Error loading topics1.txt:", error);
       });
 
-    // Update the previewMap to match your actual topic IDs and file names
     const previewMap = {
       1: [
         '/slide_previews/fundamentals_1.jpg',
@@ -179,7 +178,20 @@ const SlidesPage = ({ slides, onGoBack }) => {
                   </div>
                 </div>
                 <div className="preview-slide">
-                  {currentPreviewImages.length > 0 ? (
+                  {/* Embed Google Slides for Fundamentals */}
+                  {currentTopic?.topicId === 1 ? (
+                    <iframe
+                      src="https://docs.google.com/presentation/d/e/2PACX-1vS5hGBzaDUat06hV7NWXQarMeE4CMK-7anKrexzLEe5T2zecF0EL901RNKK64a1kw/pubembed?start=false&loop=true&delayms=60000"
+                      frameBorder="0"
+                      width="100%"
+                      height="600px"
+                      allowFullScreen
+                      mozAllowFullScreen
+                      webkitAllowFullScreen
+                      title="Fundamentals Presentation"
+                      style={{ border: "none" }}
+                    />
+                  ) : currentPreviewImages.length > 0 ? (
                     renderSlideImage(currentPreviewImages[currentSlideIndex], `Slide ${currentSlideIndex + 1}`)
                   ) : (
                     <div className="empty-preview">
@@ -229,7 +241,20 @@ const SlidesPage = ({ slides, onGoBack }) => {
               <button className="close-button" onClick={closeSlideViewer}>×</button>
             </div>
             <div className="slide-content">
-              {currentPreviewImages.length > 0 ? (
+              {/* Embed Google Slides for Fundamentals */}
+              {currentTopic?.topicId === 1 ? (
+                <iframe
+                  src="https://docs.google.com/presentation/d/e/2PACX-1vS5hGBzaDUat06hV7NWXQarMeE4CMK-7anKrexzLEe5T2zecF0EL901RNKK64a1kw/pubembed?start=false&loop=true&delayms=60000"
+                  frameBorder="0"
+                  width="100%"
+                  height="600px"
+                  allowFullScreen
+                  mozAllowFullScreen
+                  webkitAllowFullScreen
+                  title="Fundamentals Presentation"
+                  style={{ border: "none" }}
+                />
+              ) : currentPreviewImages.length > 0 ? (
                 renderSlideImage(currentPreviewImages[currentSlideIndex], `Slide ${currentSlideIndex + 1}`)
               ) : (
                 <div className="empty-slide">
